@@ -254,7 +254,7 @@ const PALLETS=[
 // Machine pairs - 4 pairs
 const MPAIRS=[];
 for(let p=0;p<4;p++){
-  const bx=16+p*148,by=96,mw=58,mh=68,tw=36,th=28;
+  const bx=16+p*148,by=120,mw=58,mh=68,tw=36,th=28;
   MPAIRS.push({
     id:p,
     m1:{id:p*2+1,x:bx,y:by,w:mw,h:mh,on:true,prog:Math.random()*0.8,
@@ -292,7 +292,7 @@ const TRASH={x:4,y:192,w:22,h:32};
 // Corridors
 const CORRIDORS=[
   {x:0,y:0,w:WW,h:84},
-  {x:0,y:82,w:WW,h:12},
+  {x:0,y:82,w:WW,h:35},
   {x:0,y:220,w:WW,h:44},
   {x:0,y:348,w:WW,h:22},
   {x:0,y:370,w:WW,h:100},
@@ -301,7 +301,7 @@ const CORRIDORS=[
 ];
 for(let p=0;p<3;p++){
   const x=MPAIRS[p].m2.x+MPAIRS[p].m2.w;
-  CORRIDORS.push({x,y:82,w:MPAIRS[p+1].m1.x-x,h:180});
+  CORRIDORS.push({x,y:106,w:MPAIRS[p+1].m1.x-x,h:180});
 }
 function inCorridor(px,py){
   for(const c of CORRIDORS)if(px>=c.x&&px<=c.x+c.w&&py>=c.y&&py<=c.y+c.h)return true;
@@ -358,7 +358,7 @@ const EVENTS=[
     {t:'Попросить предложить чем заняться самому',s:2,type:'good',fb:'Предложил сам — мотивация выше.',tool:'GROW: активизация инициативы',xp:28,oee:0.02,mood:8},
     {t:'Замечание при всех: «Убери телефон»',s:0,type:'bad',fb:'Обиделся. Работал медленнее весь день.',tool:'Публичная критика без задачи',xp:5,oee:-0.01,mood:-12},
     {t:'Ничего — станок работает, формально норма',s:0,type:'bad',fb:'47 мин × смена = сотни потерянных деталей.',tool:'Нет видения потерь',xp:0,oee:-0.02,mood:0}]},
-  {id:'sheets_low',time:155,x:PALLETS[2].x+28,y:PALLETS[2].y+18,tag:'Потери · Запасы',title:'Паллета 2300×1355 белый почти пустая',body:'Осталось ~8 листов. Станки 3/4 и 5/6 работают с этим форматом. Через 15 минут оба встанут одновременно.',skill:'loss',
+  {id:'sheets_low',time:155,x:300,y:240,tag:'Потери · Запасы',title:'Паллета 2300×1355 белый почти пустая',body:'Осталось ~8 листов. Станки 3/4 и 5/6 работают с этим форматом. Через 15 минут оба встанут одновременно.',skill:'loss',
     opts:[{t:'Немедленно: подача со склада + предупредить обе пары операторов',s:2,type:'good',fb:'Листы за 12 мин. Станки не встали. Потерь нет.',tool:'Проактивное управление запасами',xp:25,oee:0.03,mood:5},
     {t:'Подождать — кто-то сам заметит',s:0,type:'bad',fb:'Через 18 мин оба встали. 72 минуты простоя.',tool:'Нет проактивности',xp:0,oee:-0.06,mood:-8},
     {t:'Переключить одну пару на другой формат',s:1,type:'neu',fb:'Спасли одну пару. Вторая всё равно встала.',tool:'Частичное решение',xp:12,oee:-0.02,mood:0},
@@ -509,7 +509,7 @@ function updateHUD(){
 // DRAW
 // ============================================================
 function drawSprite(x,y,role,moving){
-  const px=wx(x),py=wy(y),sc=ws(1);
+  const px=wx(x),py=wy(y),sc=ws(1.6);
   const bob=moving?Math.sin(Date.now()/150)*sc*1.5:0;
   const c={player:{b:'#E8192C',h:'#fff'},rezchik:{b:'#378ADD',h:'#f59e0b'},upak:{b:'#f59e0b',h:'#378ADD'}}[role]||{b:'#378ADD',h:'#f59e0b'};
   ctx.fillStyle='#0004';ctx.beginPath();ctx.ellipse(px,py+sc*6,sc*4,sc*1.5,0,0,Math.PI*2);ctx.fill();
@@ -571,11 +571,14 @@ function drawEventMarker(ev){
   if(G.resolved.has(ev.id))return;
   const pulse=0.5+0.5*Math.sin(Date.now()/270);
   const ex=wx(ev.x),ey=wy(ev.y);
-  ctx.strokeStyle=`rgba(245,158,11,${pulse*0.35})`;ctx.lineWidth=ws(1.5);
-  ctx.beginPath();ctx.arc(ex,ey-ws(24),ws(10)*pulse,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle=`rgba(245,158,11,${0.65+0.35*pulse})`;
-  ctx.beginPath();ctx.arc(ex,ey-ws(24),ws(7.5),0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#111';ctx.font=`bold ${ws(8)}px sans-serif`;ctx.textAlign='center';ctx.fillText('!',ex,ey-ws(21));
+  // Bigger outer ring
+  ctx.strokeStyle=`rgba(245,158,11,${pulse*0.5})`;ctx.lineWidth=ws(3);
+  ctx.beginPath();ctx.arc(ex,ey-ws(30),ws(22)*pulse,0,Math.PI*2);ctx.stroke();
+  // Bigger filled circle
+  ctx.fillStyle=`rgba(245,158,11,${0.85+0.15*pulse})`;
+  ctx.beginPath();ctx.arc(ex,ey-ws(30),ws(16),0,Math.PI*2);ctx.fill();
+  // Bigger ! text
+  ctx.fillStyle='#111';ctx.font=`bold ${ws(18)}px sans-serif`;ctx.textAlign='center';ctx.fillText('!',ex,ey-ws(24));
 }
 
 function draw(){
@@ -670,15 +673,22 @@ function loop(ts){
       p.m1.prog+=dt*G.speed*0.1;if(p.m1.prog>1)p.m1.prog=0;
       p.m2.prog+=dt*G.speed*0.1;if(p.m2.prog>1)p.m2.prog=0;
     });
-    // Schedule events
+    // Schedule events - одно за раз, следующее только после решения текущего
     const el=G.time-8*60;
-    G.scheduled=G.scheduled.filter(ev=>{
-      if(el>=ev.time&&!G.resolved.has(ev.id)){
-        if(!G.activeEvents.find(a=>a.id===ev.id)){G.activeEvents.push(ev);setLog(fmtTime(G.time)+' Событие!');}
-        return false;
-      }
-      return true;
-    });
+    const hasActive=G.activeEvents.some(e=>!G.resolved.has(e.id));
+    if(!hasActive){
+      let added=false;
+      G.scheduled=G.scheduled.filter(ev=>{
+        if(!added&&el>=ev.time&&!G.resolved.has(ev.id)){
+          if(!G.activeEvents.find(a=>a.id===ev.id)){
+            G.activeEvents.push(ev);setLog(fmtTime(G.time)+' Событие!');
+            added=true;
+          }
+          return false;
+        }
+        return true;
+      });
+    }
     if(G.time>=G.timeEnd){endGame();return;}
   }
   draw();requestAnimationFrame(loop);
